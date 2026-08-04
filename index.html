@@ -16,10 +16,14 @@
                 if (!liff.isLoggedIn()) {
                     liff.login();
                 } else {
-                    const accessToken = liff.getAccessToken();
+                    // 直接取得使用者的 Line Profile (內含 userId)
+                    const profile = await liff.getProfile();
+                    const userId = profile.userId;
+                    
                     const gasUrl = "https://script.google.com/macros/s/AKfycbzE4rnZzUup8evgzoQJrXk0hl_rUiSjTpOVcPonkC8STaCiKjp-LVjcaNDl2JyEbnv_SQ/exec";
                     
-                    window.location.replace(gasUrl + "?token=" + accessToken);
+                    // 改用 userId 傳給後端
+                    window.location.replace(gasUrl + "?userId=" + userId);
                 }
             } catch (error) {
                 document.body.innerHTML = "<p style='text-align: center; margin-top: 50px; color: red;'>初始化失敗: " + error + "</p>";
