@@ -5,19 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>社區開會時間報名系統</title>
     <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    <style>
-        body { font-family: sans-serif; text-align: center; margin-top: 50px; background-color: #f9f9f9; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: inline-block; width: 90%; max-width: 400px; }
-        input, button { padding: 10px; font-size: 16px; margin-top: 10px; width: 80%; }
-        button { background-color: #00B900; color: white; border: none; border-radius: 4px; cursor: pointer; }
-    </style>
 </head>
 <body>
-    <div class="card">
-        <h2 style="color: #00B900;">社區開會時間登記</h2>
-        <div id="content"><p>載入中，請稍候...</p></div>
-    </div>
-
+    <p style="text-align: center; margin-top: 50px; font-family: sans-serif;">載入中，請稍候...</p>
     <script>
         async function main() {
             try {
@@ -28,53 +18,17 @@
                 } else {
                     const profile = await liff.getProfile();
                     const userId = profile.userId;
-                    const gasUrl = "https://script.google.com/macros/s/AKfycbzE4rnZzUup8evgzoQJrXk0hl_rUiSjTpOVcPonkC8STaCiKjp-LVjcaNDl2JyEbnv_SQ/exec?userId=" + userId;
                     
-                    // 直接透過 fetch 呼叫後端檢查是否已綁定
-                    fetch(gasUrl)
-                        .then(res => res.text())
-                        .then(html => {
-                            // 如果後端傳回尚未綁定，我們在前端直接顯示輸入姓名的表單
-                            if (html.includes("您的 LINE ID 尚未綁定")) {
-                                document.getElementById('content').innerHTML = `
-                                    <p style="color: red;">您的 LINE ID 尚未綁定。</p>
-                                    <p>請輸入您的真實姓名完成初次綁定：</p>
-                                    <input type="text" id="inputName" placeholder="例如：王小明"><br>
-                                    <button onclick="bindUser('${userId}')">確認綁定</button>
-                                `;
-                            } else {
-                                // 如果已經綁定，直接把後端整頁內容載入顯示
-                                document.open();
-                                document.write(html);
-                                document.close();
-                            }
-                        });
+                    // 填入您的 GAS 部署網址
+                    const gasUrl = "https://script.google.com/macros/s/AKfycbzE4rnZzUup8evgzoQJrXk0hl_rUiSjTpOVcPonkC8STaCiKjp-LVjcaNDl2JyEbnv_SQ/exec";
+                    
+                    // 直接把畫面導向 GAS，並帶上 userId
+                    window.location.replace(gasUrl + "?userId=" + userId);
                 }
             } catch (error) {
-                document.getElementById('content').innerHTML = "<p style='color: red;'>初始化失敗: " + error + "</p>";
+                document.body.innerHTML = "<p style='text-align: center; margin-top: 50px; color: red;'>初始化失敗: " + error + "</p>";
             }
         }
-
-        function bindUser(userId) {
-            const name = document.getElementById('inputName').value.trim();
-            if (!name) {
-                alert("請輸入姓名！");
-                return;
-            }
-            
-            // 呼叫 GAS 後端的 bindUserLineId 進行寫入
-            google.script.run
-                .withSuccessHandler(function(res) {
-                    if (res.success) {
-                        alert("綁定成功！請重新整理頁面進入系統。");
-                        location.reload();
-                    } else {
-                        alert(res.message);
-                    }
-                })
-                .bindUserLineId(name, userId);
-        }
-
         main();
     </script>
 </body>
